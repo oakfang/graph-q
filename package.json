@@ -1,0 +1,23 @@
+{
+  "name": "graph-q",
+  "version": "1.0.0",
+  "description": "Query graph-core graphs",
+  "main": "index.js",
+  "repository": "git@github.com:oakfang/graph-q.git",
+  "author": "oakfang <oakfang@gmail.com>",
+  "license": "MIT",
+  "peerDependencies": {
+    "graph-core": "^2.0.2"
+  },
+  "devDependencies": {
+    "graph-core": "^2.0.2",
+    "nefarious": "^3.1.0",
+    "nyc": "^13.2.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.11"
+  },
+  "scripts": {
+    "test": "nyc node test"
+  }
+}
