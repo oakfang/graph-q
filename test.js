@@ -1,5 +1,5 @@
 const test = require('nefarious');
-const Graph = require('graph-core');
+const Graph = require('@xgraph/core');
 const q = require('.');
 
 test.beforeEach(t => {

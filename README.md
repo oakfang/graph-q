@@ -1,6 +1,6 @@
 # graph-q
 
-A query language over the graph-core graph.
+A query language over the @xgraph/core graph.
 
 ## Usage
 
