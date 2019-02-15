@@ -17,7 +17,7 @@
   "dependencies": {
     "acorn": "^6.1.0",
     "json-predicate": "^0.9.5",
-    "lodash": "^4.17.11",
+    "monjo": "^1.0.0",
     "xype": "^4.0.0"
   },
   "scripts": {

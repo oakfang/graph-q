@@ -21,4 +21,21 @@ q(graph)`(:User)-[:owns]->(r:Resource)`;
 // get all users who own a resource
 q(graph)`(?users:User)-[:owns]->(:Resource)`;
 q(graph)`(:Resource)<-[:owns]-(users:User)`;
+// use advanced mongo-like filtering
+q(graph)`
+  (users:User{
+    name: {
+      $size: 4
+    }
+  })
+`;
+// pass query as a parameter
+q(
+  graph,
+  `(users:User{
+      name: {
+        $size: 4
+      }
+    })`
+);
 ```
