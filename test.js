@@ -4,11 +4,11 @@ const q = require('.');
 
 test.beforeEach(t => {
   const g = new Graph();
-  g.setVertex('foo', 'Person', { name: 'foo' });
-  g.setVertex('bar', 'Person', { name: 'bar' });
+  g.setVertex('foo', 'Person', { name: 'foo', age: 20 });
+  g.setVertex('bar', 'Person', { name: 'bar', age: 5 });
   g.setVertex('cat', 'Animal', { name: 'cat' });
   g.setVertex('home', 'Place', { name: 'Home' });
-  g.setVertex('pt', 'Place', { name: 'Petah Tikva' });
+  g.setVertex('pt', 'Place', { name: 'Petah Tikva', tags: ['Horrible'] });
   g.setEdge('foo', 'bar', 'friend');
   g.setEdge('bar', 'foo', 'friend');
   g.setEdge('bar', 'cat', 'owns-a');
@@ -70,7 +70,7 @@ test('match against full path', t => {
 
 test('misc queries', t => {
   const { g } = t.context;
-  const { places, _steps } = q(g, true)`(:Person)-->(places:Place)`;
+  const { places, _steps } = q(g, null, true)`(:Person)-->(places:Place)`;
   t.is(_steps.length, 3);
   t.is(places.length, 2);
   const { visitors, visits } = q(g)`
@@ -127,3 +127,220 @@ test('long query', t => {
   const [bar] = hated;
   t.is(bar.name, 'bar');
 });
+
+test('insecure query', t => {
+  const { g } = t.context;
+  t.throws(() => {
+    q(g)`({name: (() => {throw new Error("Why does this throw?")})()})`;
+  }, 'Invalid node filter syntax');
+});
+
+test('deep nested query', t => {
+  const { g } = t.context;
+  g.setVertex('spam', 'Document', {
+    data: {
+      items: [1],
+    },
+  });
+  const { results } = q(g)`(results{data:{items:[1]}})`;
+  t.is(results.length, 1);
+});
+
+const testQueryLength = (title, query, length) =>
+  test(title, t => {
+    const { g } = t.context;
+    const { results } = q(g, query);
+    t.is(results.length, length);
+  });
+
+testQueryLength(
+  'advanced json filtering ($eq)',
+  `(results:Person{
+      age: {
+        $eq: 20
+      }
+    })`,
+  1
+);
+
+testQueryLength(
+  'advanced json filtering ($ne)',
+  `(results{
+      age: {
+        $ne: 25
+      }
+    })`,
+  5
+);
+
+testQueryLength(
+  'advanced json filtering ($gt)',
+  `(results:Person{
+      age: {
+        $gt: 15
+      }
+    })`,
+  1
+);
+
+testQueryLength(
+  'advanced json filtering ($gte)',
+  `(results:Person{
+      age: {
+        $gte: 5
+      }
+    })`,
+  2
+);
+
+testQueryLength(
+  'advanced json filtering ($lt)',
+  `(results:Person{
+      age: {
+        $lt: 15
+      }
+    })`,
+  1
+);
+
+testQueryLength(
+  'advanced json filtering ($lte)',
+  `(results:Person{
+      age: {
+        $lte: 20
+      }
+    })`,
+  2
+);
+
+testQueryLength(
+  'advanced json filtering ($in)',
+  `(results:Person{
+      age: {
+        $in: [20, 34, 2]
+      }
+    })`,
+  1
+);
+
+testQueryLength(
+  'advanced json filtering ($nin)',
+  `(results:Person{
+      age: {
+        $nin: [20, 34, 5]
+      }
+    })`,
+  0
+);
+
+testQueryLength(
+  'advanced json filtering ($not)',
+  `(results{
+      name: {
+        $not: {
+          $eq: "foo"
+        }
+      }
+    })`,
+  4
+);
+
+testQueryLength(
+  'advanced json filtering ($and)',
+  `(results{
+      age: {
+        $and: [{
+          $gte: 5
+        }, {
+          $lt: 23
+        }]
+      }
+    })`,
+  2
+);
+
+testQueryLength(
+  'advanced json filtering ($or)',
+  `(results{
+      age: {
+        $or: [{
+          $gt: 5
+        }, {
+          $lt: 18
+        }]
+      }
+    })`,
+  2
+);
+
+testQueryLength(
+  'advanced json filtering ($exists)',
+  `(results{
+      age: {
+        $exists: true
+      }
+    })`,
+  2
+);
+
+testQueryLength(
+  'advanced json filtering ($exists)',
+  `(results{
+      age: {
+        $exists: false
+      }
+    })`,
+  3
+);
+
+testQueryLength(
+  'advanced json filtering ($size, with array)',
+  `(results{
+      tags: {
+        $size: 1
+      }
+    })`,
+  1
+);
+
+testQueryLength(
+  'advanced json filtering ($size, with string)',
+  `(results{
+      name: {
+        $size: 3
+      }
+    })`,
+  3
+);
+
+testQueryLength(
+  'advanced json filtering ($all, with array)',
+  `(results{
+      tags: {
+        $all: ['Horrible']
+      }
+    })`,
+  1
+);
+
+testQueryLength(
+  'advanced json filtering ($all, with string)',
+  `(results{
+      name: {
+        $all: 'o'
+      }
+    })`,
+  2
+);
+
+testQueryLength(
+  'advanced json filtering ($elemMatch)',
+  `(results{
+      tags: {
+        $elemMatch: {
+          $size: 8
+        }
+      }
+    })`,
+  1
+);
