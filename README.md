@@ -10,6 +10,8 @@ const graph = require('./graph');
 
 // get all User typed vertices from the graph
 const { users } = q(graph)`(users:User)`;
+// embedding raw values
+const { users } = q(graph)`(users:${q.raw('User')})`;
 // get all vertices who have incoming edges from vertex id foo
 const { results } = q(graph)`(#foo)-->(results)`;
 // get all User typed vertices from the graph

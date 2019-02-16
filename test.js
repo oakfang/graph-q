@@ -68,6 +68,13 @@ test('match against full path', t => {
   t.is(results.length, 5);
 });
 
+test('Using raw values', t => {
+  const { v: results } = q(t.context.g)`
+    (:${q.raw('Person')})-->(v)
+  `;
+  t.is(results.length, 5);
+});
+
 test('misc queries', t => {
   const { g } = t.context;
   const { places, _steps } = q(g, null, true)`(:Person)-->(places:Place)`;
