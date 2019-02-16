@@ -359,3 +359,9 @@ testQueryLength(
   `()-->(#bar)<--(results)`,
   2
 );
+
+testQueryLength(
+  'Using full JSON syntax',
+  `(results:Person{"name":{"$size":3}})`,
+  2
+);
