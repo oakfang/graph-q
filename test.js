@@ -344,3 +344,11 @@ testQueryLength(
     })`,
   1
 );
+
+testQueryLength('Using query with vertex id', `(#foo)-->(results)`, 2);
+
+testQueryLength(
+  'Using query with vertex id for mid step',
+  `()-->(#bar)<--(results)`,
+  2
+);
