@@ -142,6 +142,15 @@ test('insecure query', t => {
   }, 'Invalid node filter syntax');
 });
 
+test('weird id', t => {
+  const { g } = t.context;
+  g.setVertex('528853d3-bb8a-469a-91e0-edadcdc66758', 'Test');
+  const { results } = q(g)`(#${q.raw(
+    '528853d3-bb8a-469a-91e0-edadcdc66758'
+  )})-->()-->(results)`;
+  t.is(results.length, 0);
+});
+
 test('deep nested query', t => {
   const { g } = t.context;
   g.setVertex('spam', 'Document', {
